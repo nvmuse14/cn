@@ -1,0 +1,51 @@
+server.py:
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('127.0.0.1', 12345))
+s.listen(1)
+
+print("Server waiting...")
+conn, addr = s.accept()
+print("Client connected")
+
+while True:
+    msg = conn.recv(1024).decode()
+
+    if msg.lower() == "exit":
+        break
+
+    print("Client:", msg)
+
+    reply = input("Server: ")
+    conn.send(reply.encode())
+
+    if reply.lower() == "exit":
+        break
+
+conn.close()
+s.close()
+-------------------------------------------
+client.py:
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('127.0.0.1', 12345))
+
+while True:
+    msg = input("Client: ")
+    s.send(msg.encode())
+
+    if msg.lower() == "exit":
+        break
+
+    reply = s.recv(1024).decode()
+    print("Server:", reply)
+
+    if reply.lower() == "exit":
+        break
+
+s.close()
+
