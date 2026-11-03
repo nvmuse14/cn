@@ -1,0 +1,38 @@
+server.py:
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+s.bind(('127.0.0.1', 12345))
+
+print("UDP Server is waiting...")
+
+while True:
+    data, addr = s.recvfrom(1024)
+
+    print("Client:", data.decode())
+
+    s.sendto(data, addr)
+-----------------------------------------------
+client.py:
+
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+server = ('127.0.0.1', 12345)
+
+while True:
+    msg = input("Enter message: ")
+
+    if msg.lower() == "exit":
+        break
+
+    s.sendto(msg.encode(), server)
+
+    data, addr = s.recvfrom(1024)
+
+    print("Echo from server:", data.decode())
+
+s.close()
