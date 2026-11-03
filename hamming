@@ -1,0 +1,53 @@
+Sender.py:
+
+text = input("Enter message: ")
+binary = ''.join(format(ord(c), '08b') for c in text)
+
+channel = ""
+
+for i in range(0, len(binary), 4):
+    d = list(map(int, binary[i:i+4]))
+    a, b, c, e = d
+
+    p1 = a ^ b ^ e
+    p2 = a ^ c ^ e
+    p4 = b ^ c ^ e
+
+    channel += ''.join(map(str, [p1, p2, a, p4, b, c, e]))
+
+with open("channel", "w") as f:
+    f.write(channel)
+
+print("Encoded Data:", channel)
+print("Data sent successfully!")
+
+Receiver.py:
+
+with open("channel", "r") as f:
+    data = f.read()
+
+binary = ""
+
+for i in range(0, len(data), 7):
+    c = list(map(int, data[i:i+7]))
+
+    s1 = c[0] ^ c[2] ^ c[4] ^ c[6]
+    s2 = c[1] ^ c[2] ^ c[5] ^ c[6]
+    s4 = c[3] ^ c[4] ^ c[5] ^ c[6]
+
+    error = s1 + 2*s2 + 4*s4
+
+    if error:
+        print("Error at position:", i + error)
+        c[error-1] ^= 1
+        print("Error corrected!")
+
+    binary += ''.join(map(str, [c[2], c[4], c[5], c[6]]))
+
+message = ""
+
+for i in range(0, len(binary), 8):
+    message += chr(int(binary[i:i+8], 2))
+
+print("Received Message:", message)
+
