@@ -1,0 +1,61 @@
+sender.py:
+
+import time
+
+msg = input("Enter message: ")
+w = int(input("Enter window size: "))
+i = 0
+
+while i < len(msg):
+    end = min(i+w, len(msg))
+
+    with open("Sender_Buffer", "w") as f:
+        for n in range(i, end):
+            f.write(f"{n+1},{msg[n]}\n")
+            print("Sent:", n+1, msg[n])
+
+    while True:
+        time.sleep(2)
+
+        with open("Receiver_Buffer", "r") as f:
+            ack = int(f.read())
+
+        if ack == end+1:
+            print("ACK received:", ack)
+            i = end
+            break
+        else:
+            print("NACK received. Resending...")
+
+print("Transmission completed!")
+-------------------------------------------------
+receiver.py:
+
+
+import time, os
+
+expected = 1
+last_data = ""
+
+while True:
+    if os.path.exists("Sender_Buffer"):
+        with open("Sender_Buffer", "r") as f:
+            data = f.read()
+
+        if data and data != last_data:
+            last_data = data
+
+            for line in data.strip().split("\n"):
+                n, ch = line.split(",")
+
+                if int(n) == expected:
+                    print("Received:", n, ch)
+                    expected += 1
+                else:
+                    print("NACK:", expected)
+                    break
+
+            with open("Receiver_Buffer", "w") as f:
+                f.write(str(expected))
+
+    time.sleep(1)
