@@ -1,0 +1,22 @@
+
+import subprocess
+import platform
+
+host = input("Enter IP address or hostname: ")
+
+if platform.system().lower() == "windows":
+    command = ["ping", "-n", "4", host]
+else:
+    command = ["ping", "-c", "4", host]
+
+try:
+    result = subprocess.run(command)
+
+    if result.returncode == 0:
+        print("Host is reachable")
+    else:
+        print("Host is unreachable")
+
+except Exception as e:
+    print("Error:", e)
+    
